@@ -11,11 +11,17 @@ Libraries: Express.js, Socket.io
 
 ## ALGORITHM:
 1.Start Node.js and create a project folder.
+
 2.Initialize the project using npm init -y.
+
 3.Install dependencies using npm install express socket.io.
+
 4.Write the chatbot server and client code in server.js.
+
 5.Run the application using node server.js.
+
 6.Open the chatbot in a web browser at http://localhost:3000.
+
 7.Interact with the chatbot to test real-time message exchange
 
 ## PROGRAM:
