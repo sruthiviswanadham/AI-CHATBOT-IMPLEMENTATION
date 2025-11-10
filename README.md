@@ -1,176 +1,201 @@
-# AI-CHATBOT-IMPLEMENTATION
+### Intelligent Enterprise Assistant 
+An AI-powered virtual assistant designed to help the public sector work smarter. It automates tasks like document search, policy answering, leave requests, and helpdesk support — all through natural conversation.
+### Overview
+The Intelligent Enterprise Assistant acts as a **smart FAQ chatbot** for organizational use.  
+It uses predefined knowledge to respond to queries and can be easily extended to support more workflows.
 
-## AIM:
-To design and implement a simple chatbot application using Node.js and Socket.io that enables real-time communication between a user and the system, where the chatbot responds automatically based on predefined rules or patterns.
+This prototype demonstrates how AI-powered chat support can:
+1. Answer repeated employee/citizen queries instantly
+2. Reduce helpdesk workload
+3. Improve access to organizational knowledge
+4. Serve as a foundation for integrating automation and data lookup
+### Problem Statement
+Public sector organizations handle large volumes of repetitive queries related to rules, HR policies, procedures, and internal services.  
+Traditional systems require manual lookup, causing delays and inefficiency.
+### Features
+ • Conversational Chat Interface
+ • Predefined knowledge responses
+ • Web-based UI 
+ • Accessible using any browser 
+ • Easy to Customize
+ • Responds to common policy and helpdesk queries
+ • Users can ask questions naturally 
+ ### Project Structure
+ ```
+intelligent-enterprise-assistant/
+│
+├── app.py
+│
+├── templates/
+│ └── index.html 
+│
+└── static/
+└── (CSS / JS files)
 
-## APPARATUS / REQUIREMENTS:
-
-Hardware: Computer with Internet access
-Software: Node.js, VS Code or any text editor, Web browser
-Libraries: Express.js, Socket.io
-
-## ALGORITHM:
-1.Start Node.js and create a project folder.
-
-2.Initialize the project using npm init -y.
-
-3.Install dependencies using npm install express socket.io.
-
-4.Write the chatbot server and client code in server.js.
-
-5.Run the application using node server.js.
-
-6.Open the chatbot in a web browser at http://localhost:3000.
-
-7.Interact with the chatbot to test real-time message exchange
-
-## PROGRAM:
-
-## NAME: Viswanadham Venkata Sai Sruthi
-## REG NO: 212223100061
-
-## 1. Create a new folder
+ ```
+### Implementation Code:
+#### app.py
 ```
-mkdir simple-chatbot
-cd simple-chatbot
-```
-## 2. Create a new file called server.js
-```
-/* 
- Simple Node.js Chatbot (server + frontend)
- ------------------------------------------
- To run locally:
+from flask import Flask, render_template, request, jsonify
 
- 1️⃣  Run these commands:
-     npm init -y
-     npm install express socket.io
+app = Flask(__name__)
 
- 2️⃣  Start the server:
-     node server.js
+responses = {
+    "hi": "Hello! How can I assist you today?",
+    "hello": "Hi there! How can I help?",
+    "how are you": "I'm working perfectly! 😊",
+    "bye": "Goodbye! Have a great day!",
 
- 3️⃣  Open your browser and visit:
-     http://localhost:3000
-
- Then you’ll see a working chatbot page.
-*/
-
-const express = require('express');
-const http = require('http');
-const { Server } = require('socket.io');
-
-const app = express();
-const server = http.createServer(app);
-const io = new Server(server);
-
-// Serve the HTML chatbot UI
-app.get('/', (req, res) => {
-  res.send(`<!doctype html>
-<html lang="en">
-<head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Simple Chatbot</title>
-<style>
-  body{font-family:Arial,Helvetica,sans-serif;margin:0;background:#f4f7fb}
-  .app{max-width:800px;margin:36px auto;background:#fff;border-radius:12px;
-       box-shadow:0 6px 24px rgba(20,20,50,.08);overflow:hidden}
-  header{padding:16px 20px;border-bottom:1px solid #eee}
-  .messages{height:500px;padding:20px;overflow:auto;background:#f9fbff}
-  .msg{margin-bottom:12px;display:flex}
-  .msg.bot{justify-content:flex-start}
-  .msg.user{justify-content:flex-end}
-  .bubble{max-width:78%;padding:10px 14px;border-radius:12px;background:#eef2ff}
-  .bubble.user{background:#0066ff;color:#fff}
-  .composer{display:flex;padding:12px;border-top:1px solid #eee}
-  .composer input{flex:1;padding:10px;border-radius:999px;border:1px solid #ddd;margin-right:8px}
-  .composer button{padding:10px 14px;border-radius:999px;border:none;background:#0066ff;color:#fff}
-</style>
-</head>
-<body>
-<div class="app">
-  <header><strong>💬 Simple Chatbot</strong></header>
-  <div class="messages" id="messages"></div>
-  <div class="composer">
-    <input id="input" placeholder="Type a message and press Enter" autofocus />
-    <button id="send">Send</button>
-  </div>
-</div>
-
-<script src="/socket.io/socket.io.js"></script>
-<script>
-  const socket = io();
-  const messagesEl = document.getElementById('messages');
-  const inputEl = document.getElementById('input');
-  const sendBtn = document.getElementById('send');
-
-  function renderMessage(text, who){
-    const wrap = document.createElement('div');
-    wrap.className = 'msg ' + who;
-    const bubble = document.createElement('div');
-    bubble.className = 'bubble ' + (who === 'user' ? 'user' : 'bot');
-    bubble.textContent = text;
-    wrap.appendChild(bubble);
-    messagesEl.appendChild(wrap);
-    messagesEl.scrollTop = messagesEl.scrollHeight;
-  }
-
-  function sendMessage(){
-    const text = inputEl.value.trim();
-    if(!text) return;
-    renderMessage(text, 'user');
-    socket.emit('user_message', text);
-    inputEl.value = '';
-  }
-
-  sendBtn.addEventListener('click', sendMessage);
-  inputEl.addEventListener('keydown', (e) => { if(e.key === 'Enter'){ sendMessage(); } });
-
-  socket.on('bot_message', (text) => {
-    renderMessage(text, 'bot');
-  });
-</script>
-</body>
-</html>`);
-});
-
-// Handle chat logic
-io.on('connection', (socket) => {
-  console.log('Client connected', socket.id);
-  socket.emit('bot_message', "👋 Hello! I'm a simple chatbot. Type 'help' to see options.");
-
-  socket.on('user_message', (msg) => {
-    const reply = generateBotReply(msg);
-    setTimeout(() => socket.emit('bot_message', reply), 600);
-  });
-
-  socket.on('disconnect', () => {
-    console.log('Client disconnected', socket.id);
-  });
-});
-
-// Simple rule-based bot
-function generateBotReply(message) {
-  const msg = message.toLowerCase();
-
-  if (msg.includes('hello') || msg.includes('hi')) return "Hi there! 😊 How can I help you?";
-  if (msg.includes('your name')) return "I'm Chatty, a simple demo chatbot!";
-  if (msg.includes('how are you')) return "I'm just code, but I'm feeling great! 💻";
-  if (msg.includes('help')) return "Try asking about 'time', 'joke', or 'weather'.";
-  if (msg.includes('joke')) return "😂 Why do programmers hate nature? It has too many bugs!";
-  if (msg.includes('time')) return "I can’t tell time yet, but your computer clock can!";
-  if (msg.includes('weather')) return "☁️ I can’t fetch weather now, but you can add an API later!";
-
-  return `You said: "${message}". I'm a demo bot — customize me in the code!`;
+    "what is an intelligent enterprise": "An Intelligent Enterprise uses AI, automation, and data to improve efficiency and decision making.",
+    "what is your purpose": "My purpose is to assist employees and citizens by providing quick and accurate information.",
+    "how do you help employees": "I help employees by answering questions instantly and reducing manual work.",
+    "how to apply for leave": "You can apply leave using the HR Portal under Employee Self Service.",
+    "what are office working hours": "Office hours are Monday to Friday, 9 AM to 5 PM.",
+    "how to register a complaint": "You can register a complaint through the Citizen Grievance Portal.",
+    "how to reset my password": "You can reset your password through the IT Helpdesk Support System.",
+    "where to get service forms": "Service forms are available on the official e-Governance portal.",
+    "what documents are needed for id card": "You need Aadhaar Card, Employee ID, and a passport-size photograph."
 }
 
-const PORT = process.env.PORT || 3000;
-server.listen(PORT, () => console.log(`✅ Server running at http://localhost:${PORT}`));
-```
-## OUTPUT:
-When the program is executed, the chatbot interface opens in a web browser.
-The user can type messages, and the chatbot responds instantly with predefined replies.
-It demonstrates real-time communication between client and server using Socket.io.
 
-## RESULT:
-The chatbot application was successfully developed and executed using Node.js and Socket.io.
-It allows real-time, bidirectional message exchange between the user and the system, achieving the aim of the experiment.
+@app.route("/")
+def index():
+    return render_template("index.html")
+
+@app.route("/get", methods=["POST"])
+def chatbot_response():
+    user_msg = request.form["msg"].lower()
+    reply = responses.get(user_msg, "Sorry, I didn't understand. Can you try again?")
+    return jsonify({"response": reply})
+
+if __name__ == "__main__":
+    app.run(debug=True)
+
+```
+#### index.html
+```
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Simple Chatbot</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+
+<h2>💬 Simple AI Chatbot</h2>
+
+<div id="chatbox"></div>
+
+<div class="input-area">
+    <input type="text" id="userInput" placeholder="Type your message...">
+    <button onclick="sendMessage()">Send</button>
+</div>
+
+<script src="/static/script.js"></script>
+</body>
+</html>
+
+```
+#### style.css
+```
+body {
+  background: #f2f2f2;
+  text-align: center;
+  font-family: Arial, sans-serif;
+}
+
+h2 {
+  color: #333;
+}
+
+#chatbox {
+  width: 60%;
+  height: 350px;
+  background: white;
+  border-radius: 6px;
+  padding: 10px;
+  margin: auto;
+  margin-bottom: 10px;
+  overflow-y: auto;
+  border: 1px solid #ccc;
+}
+
+.input-area {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+}
+
+#userInput {
+  width: 50%;
+  padding: 10px;
+  border-radius: 4px;
+  border: 1px solid #555;
+}
+
+button {
+  padding: 10px 20px;
+  border: none;
+  background: #007bff;
+  color: white;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+button:hover {
+  background: #0056b3;
+}
+```
+#### script.js
+```
+function sendMessage() {
+  let msg = document.getElementById("userInput").value;
+  if (msg.trim() === "") return;
+
+  document.getElementById("chatbox").innerHTML += `<p><b>You:</b> ${msg}</p>`;
+
+  fetch("/get", {
+    method: "POST",
+    headers: {"Content-Type": "application/x-www-form-urlencoded"},
+    body: `msg=${msg}`
+  })
+  .then(response => response.json())
+  .then(data => {
+    document.getElementById("chatbox").innerHTML += `<p><b>Bot:</b> ${data.response}</p>`;
+  });
+
+  document.getElementById("userInput").value = "";
+}
+```
+### How to Run Everything
+```
+ Step 1: Open Terminal in your project folder
+ Step 2: Install Dependencies
+ pip install flask
+ Step 3: Start the Flask Server
+ python app.py
+ You will see
+ Running on http://127.0.0.1:5000/
+ Step 4: Open in Browser
+ http://127.0.0.1:5000/
+ Step 5: Open frontend
+
+ Open frontend/index.html in your browser.
+ Ask something like:
+ Step 4: Open frontend
+  what is an intelligent enterprise?
+
+✅ It’ll reply using your sample policy data!
+```
+### Future Enhancements
+
+• Add AI-based contextual search using embeddings
+• Voice-based interaction (speech-to-text)
+• Hindi / Telugu / Tamil language support
+• Integration with actual HRMS system
+• Admin dashboard for analytics
+### OUTPUT:
+<img width="1620" height="862" alt="image" src="https://github.com/user-attachments/assets/c6949e23-f5eb-4e0a-a8a6-07943c797117" />
+
+### RESULT:
+Thus the Chatbot is executed Successfully.
